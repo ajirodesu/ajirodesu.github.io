@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lance Cochangco - Profile</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: white;
+            overflow-x: hidden;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .profile-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            min-height: 100vh;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        .profile-content {
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #3498db;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        .profile-username {
+            color: #8899a6;
+            margin: 5px 0 15px;
+            font-size: 14px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        .social-icons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .social-icons a {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+        .social-icons a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .social-icons img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+        }
+        .profile-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            text-align: center;
+            padding: 0 10px;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #8899a6;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        .info-value {
+            font-size: 15px;
+            font-weight: bold;
+            padding: 0 5px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        .action-button {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid white;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: transparent;
+            color: white;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .action-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .copyright {
+            padding: 10px;
+            font-size: 12px;
+            color: #8899a6;
+            text-align: center;
+            margin-top: auto;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        .verified-check {
+            width: 20px;
+            height: 20px;
+            margin-left: 8px;
+            display: inline-flex;
+        }
+        .verified-check img {
+            width: 100%;
+            height: 100%;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #3498db;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .message-icon {
+            width: 20px;
+            height: 20px;
+            margin-left: 5px;
+            filter: brightness(0) invert(1);
+        }
+        @media (max-width: 480px) {
+            .profile-content {
+                width: 95%;
+            }
+            .social-icons {
+                gap: 10px;
+            }
+            .social-icons a {
+                width: 35px;
+                height: 35px;
+            }
+            .social-icons img {
+                width: 18px;
+                height: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="spaceCanvas"></canvas>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    <div class="profile-container" style="display: none;" id="profileContainer">
+        <div class="profile-content">
+            <div class="profile-picture">
+                <img src="https://graph.facebook.com/100089954918723/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662" alt="Profile Picture">
+            </div>
+            <h1 class="profile-name">
+                Lance Cochangco
+                <span class="verified-check">
+                    <img src="svg/verified-check.svg" alt="Verified">
+                </span>
+            </h1>
+            <p class="profile-username">@lanceajiro</p>
+            <div class="social-icons">
+                <a href="https://ajiro-rest-api.gleeze.com" aria-label="RestApi">
+                    <img src="svg/api.svg" alt="RestApi">
+                </a>
+                <a href="https://www.facebook.com/lance.cochangco" aria-label="Facebook">
+                    <img src="svg/facebook.svg" alt="Facebook">
+                </a>
+                <a href="https://www.instagram.com/lance.cochangco" aria-label="Instagram">
+                    <img src="svg/instagram.svg" alt="Instagram">
+                </a>
+                <a href="https://x.com/lanceajiro" aria-label="X">
+                    <img src="svg/x.svg" alt="X">
+                </a>
+                <a href="https://t.me/lanceajiroo" aria-label="Telegram">
+                    <img src="svg/telegram.svg" alt="Telegram">
+                </a>
+                <a href="https://github.com/ajirodesu" aria-label="GitHub">
+                    <img src="svg/github.svg" alt="GitHub">
+                </a>
+                <a href="https://www.discord.com/lanceajiro" aria-label="Discord">
+                    <img src="svg/discord.svg" alt="Discord">
+                </a>
+            </div>
+            <div class="profile-info">
+                <div class="info-item">
+                    <div class="info-value">&nbsp;&nbsp;2005</div>
+                    <div class="info-label">Year of Birth</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value">+239</div>
+                    <div class="info-label">Achievements</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value">Philippines</div>
+                    <div class="info-label">Location</div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="action-button" onclick="window.location.href='https://facebook.com/lance.cochangco';">
+                    + Connect
+                </button>
+                <button class="action-button" onclick="window.location.href='https://m.me/lance.cochangco';">
+                    Message
+                    <img src="svg/message.svg" alt="Message" class="message-icon">
+                </button>
+            </div>
+        </div>
+    </div>
+    <footer class="copyright">
+        © lanceajiro 2023-2024
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('spaceCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth * devicePixelRatio;
+            canvas.height = window.innerHeight * devicePixelRatio;
+            canvas.style.width = `${window.innerWidth}px`;
+            canvas.style.height = `${window.innerHeight}px`;
+            ctx.scale(devicePixelRatio, devicePixelRatio);
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const stars = [];
+        const numStars = 1000;
+        const colors = ['#ffffff', '#fffafa', '#f8f8ff', '#f0ffff', '#f5f5f5', '#e6e6fa', '#ffffd0'];
+
+        for (let i = 0; i < numStars; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                z: Math.random() * 1000,
+                radius: Math.random() * 1.5 + 0.5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+            });
+        }
+
+        function drawStar(x, y, z, radius, color) {
+            const scale = 1000 / (1000 - z);
+            ctx.beginPath();
+            ctx.arc(x * scale, y * scale, radius * scale, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        function createGradient() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#000000');
+            gradient.addColorStop(0.3, '#0a0a2a');
+            gradient.addColorStop(0.7, '#0a0a2a');
+            gradient.addColorStop(1, '#000000');
+            return gradient;
+        }
+
+        function drawNebula() {
+            const nebulaColors = [
+                'rgba(255, 0, 0, 0.05)',
+                'rgba(0, 0, 255, 0.05)',
+                'rgba(0, 255, 0, 0.05)',
+                'rgba(255, 0, 255, 0.05)'
+            ];
+
+            nebulaColors.forEach((color, index) => {
+                const nebulaGradient = ctx.createRadialGradient(
+                    canvas.width * (0.2 + index * 0.2),
+                    canvas.height * (0.3 + index * 0.1),
+                    0,
+                    canvas.width * (0.2 + index * 0.2),
+                    canvas.height * (0.3 + index * 0.1),
+                    canvas.width * 0.4
+                );
+                nebulaGradient.addColorStop(0, color);
+                nebulaGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = nebulaGradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            });
+        }
+
+        let frame = 0;
+
+        function animate() {
+            frame++;
+            ctx.fillStyle = createGradient();
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            drawNebula();
+
+            stars.forEach((star, index) => {
+                star.z -= 0.5;
+                if (star.z < 1) {
+                    star.z = 1000;
+                }
+                const flickerIntensity = Math.sin(frame * 0.05 + index) * 0.2 + 0.8;
+                drawStar(star.x, star.y, star.z, star.radius * flickerIntensity, star.color);
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('profileContainer').style.display = 'flex';
+            }, 1000);
+        });
+    </script>
+</body>
+      </html>
